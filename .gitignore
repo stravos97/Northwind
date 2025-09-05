@@ -1,0 +1,113 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Operating System ###
+# macOS
+.DS_Store
+.DS_Store?
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+
+# Linux
+.directory
+
+### Application Configuration ###
+# Environment-specific configs (may contain secrets)
+application-dev.properties
+application-test.properties
+application-prod.properties
+application-dev.yml
+application-test.yml
+application-prod.yml
+application-local.*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+### Logs & Temporary Files ###
+# Logs
+*.log
+logs/
+spring.log
+
+# Temporary files
+*.tmp
+*.temp
+*~
+*.orig
+*.bak
+
+### Database Files ###
+# Database
+*.db
+*.sqlite
+*.h2.db
+*.trace.db
+
+### Security & Certificates ###
+# Security files (should never be committed)
+*.key
+*.pem
+*.p12
+*.jks
+keystore
+*.keystore
+
+### Java Runtime & Debugging ###
+# JVM crash logs
+hs_err_pid*
+
+# Java heap dumps
+*.hprof
+
+### Claude IDE ###
+# Claude IDE settings
+.claude/
+
+### Editor & Coverage ###
+# Vim
+*.swp
+*.swo
+
+# Coverage reports
+coverage/
+*.lcov
