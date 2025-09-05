@@ -1,4 +1,4 @@
-package com.sparta.nam.northwind;
+package com.sparta.northwind.northwind;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
