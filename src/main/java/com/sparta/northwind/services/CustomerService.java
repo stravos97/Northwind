@@ -13,21 +13,20 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    public CustomerService(CustomerRepository customerRepository){
+    public CustomerService(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
 
-    public List<Customer> getAllCustomer(){
+    public List<Customer> getAllCustomer() {
         return customerRepository.findAll();
     }
 
-    public Customer getCustomerByID(String id){
+    public Customer getCustomerByID(String id) {
         return customerRepository.findById(id).orElse(null);
     }
 
-    public Customer saveCustomer(Customer customer){
-        if (customerRepository.existsById(customer.getCustomerID()))
-        {
+    public Customer saveCustomer(Customer customer) {
+        if (customerRepository.existsById(customer.getCustomerID())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Customer already exists");
 
         }

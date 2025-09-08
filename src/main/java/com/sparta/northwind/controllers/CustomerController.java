@@ -4,6 +4,7 @@ import com.sparta.northwind.entities.Customer;
 import com.sparta.northwind.services.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +22,13 @@ public class CustomerController {
 
     private final CustomerService service;
 
-    public CustomerController(CustomerService service){
+    public CustomerController(CustomerService service) {
         this.service = service;
     }
 
 
     @Operation(summary = "Get all customers",
-                description = "Retrieve a list of all customers")
+            description = "Retrieve a list of all customers")
     @GetMapping("/")
     public ResponseEntity<List<Customer>> getAllCustomers() {
         List<Customer> customers = service.getAllCustomer();
@@ -35,12 +36,12 @@ public class CustomerController {
     }
 
     @Operation(summary = "Get customer by ID",
-                description = "Retrieve a a customer from the database using their unique ID")
+            description = "Retrieve a a customer from the database using their unique ID")
 
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getCustomerById(@Size(max = 5) @PathVariable String id){
+    public ResponseEntity<Customer> getCustomerById(@Size(max = 5) @PathVariable String id) {
         Customer customer = service.getCustomerByID(id);
-        if(customer != null){
+        if (customer != null) {
             return ResponseEntity.ok(customer);
         } else {
             return ResponseEntity.notFound().build();
@@ -48,18 +49,17 @@ public class CustomerController {
     }
 
     @Operation(summary = "Add a new customer",
-                description = "Create a new customer in the database")
+            description = "Create a new customer in the database")
     @PostMapping
-    public ResponseEntity<Customer> addCustomer(@Valid @RequestBody Customer customer){
+    public ResponseEntity<Customer> addCustomer(@Valid @RequestBody Customer customer) {
         Customer savedCustomer = service.saveCustomer(customer);
         return ResponseEntity.status(201).body(savedCustomer);
     }
 
     @Operation(summary = "Update a customer",
-                description = "Update an existing customer record in the database using their unique ID")
+            description = "Update an existing customer record in the database using their unique ID")
     @PutMapping("/{id}")
-    public ResponseEntity<Customer> updateCustomerById(@Valid @RequestBody Customer postRequestCustomer, @Size(max = 5) @PathVariable String id)
-    {
+    public ResponseEntity<Customer> updateCustomerById(@Valid @RequestBody Customer postRequestCustomer, @Size(max = 5) @PathVariable String id) {
 
 
         /**
@@ -79,36 +79,35 @@ public class CustomerController {
 
         Customer existingCustomer = service.getCustomerByID(id);
 
-        if (existingCustomer != null)
-        {
+        if (existingCustomer != null) {
             postRequestCustomer.setCustomerID(id); // Ensure ID matches path
             Customer updatedCustomer = service.updateCustomer(postRequestCustomer);
             return ResponseEntity.ok(updatedCustomer);
 
-        }
-        else
-        {
+        } else {
             return ResponseEntity.notFound().build();
         }
 
     }
 
     @Operation(summary = "Delete a customer",
-                description = "Delete a customer in the database")
+            description = "Delete a customer in the database")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCustomer(@Size(max = 5) @PathVariable String id)
-    {
-          if( service.deleteCustomerById(id))
-          {
-              return ResponseEntity.noContent().build();
-          } else
-          {
-              return ResponseEntity.notFound().build();
-          }
+    public ResponseEntity<Void> deleteCustomer(@Size(max = 5) @PathVariable String id) {
+        if (service.deleteCustomerById(id)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<String> handleConstraintViolation(ConstraintViolationException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 

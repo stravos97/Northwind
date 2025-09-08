@@ -3,6 +3,7 @@ package com.sparta.northwind.services;
 import com.sparta.northwind.entities.Customer;
 import com.sparta.northwind.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -51,135 +52,179 @@ class CustomerServiceTest {
     }
 
     @Test
+    @DisplayName("Get all customers returns list of all customers from repository")
     void testGetAllCustomers() {
-        // Arrange
-        when(customerRepository.findAll()).thenReturn(testCustomers);
+        // Given: repository contains a list of customers
+        List<Customer> expectedCustomers = testCustomers;
+        when(customerRepository.findAll()).thenReturn(expectedCustomers);
 
-        // Act
-        List<Customer> result = customerService.getAllCustomer();
+        // When: requesting all customers from service
+        List<Customer> actualCustomers = customerService.getAllCustomer();
 
-        // Assert
-        assertEquals(2, result.size());
-        assertEquals("TEST1", result.get(0).getCustomerID());
-        assertEquals("TEST2", result.get(1).getCustomerID());
+        // Then: should return all customers from repository
+        assertEquals(2, actualCustomers.size());
+        assertEquals("TEST1", actualCustomers.get(0).getCustomerID());
+        assertEquals("TEST2", actualCustomers.get(1).getCustomerID());
+        
+        // Verify repository was called
         verify(customerRepository).findAll();
     }
 
     @Test
+    @DisplayName("Get customer by ID returns customer when ID exists in repository")
     void testGetCustomerById_Success() {
-        // Arrange
-        when(customerRepository.findById("TEST1")).thenReturn(Optional.of(testCustomer));
+        // Given: repository will return a customer for valid ID
+        String customerId = "TEST1";
+        Customer expectedCustomer = testCustomer;
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(expectedCustomer));
 
-        // Act
-        Customer result = customerService.getCustomerByID("TEST1");
+        // When: requesting customer by ID
+        Customer actualCustomer = customerService.getCustomerByID(customerId);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("TEST1", result.getCustomerID());
-        assertEquals("Test Company Ltd", result.getCompanyName());
-        verify(customerRepository).findById("TEST1");
+        // Then: should return the expected customer
+        assertNotNull(actualCustomer);
+        assertEquals(expectedCustomer.getCustomerID(), actualCustomer.getCustomerID());
+        assertEquals(expectedCustomer.getCompanyName(), actualCustomer.getCompanyName());
+        
+        // Verify repository was called with correct ID
+        verify(customerRepository).findById(customerId);
     }
 
     @Test
+    @DisplayName("Get customer by ID returns null when ID does not exist in repository")
     void testGetCustomerById_NotFound() {
-        // Arrange
-        when(customerRepository.findById("DUMMY")).thenReturn(Optional.empty());
+        // Given: repository will return empty for non-existent ID
+        String nonExistentCustomerId = "DUMMY";
+        when(customerRepository.findById(nonExistentCustomerId)).thenReturn(Optional.empty());
 
-        // Act
-        Customer result = customerService.getCustomerByID("DUMMY");
+        // When: requesting customer by non-existent ID
+        Customer actualCustomer = customerService.getCustomerByID(nonExistentCustomerId);
 
-        // Assert
-        assertNull(result);
-        verify(customerRepository).findById("DUMMY");
+        // Then: should return null
+        assertNull(actualCustomer);
+        
+        // Verify repository was called with correct ID
+        verify(customerRepository).findById(nonExistentCustomerId);
     }
 
     @Test
+    @DisplayName("Get customer by ID throws exception when ID is longer than 5 characters")
     void testGetCustomerById_InvalidLength() {
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
+        // Given: an invalid customer ID that's too long
+        String invalidCustomerId = "TOOLONG123";
+        
+        // When & Then: requesting customer with invalid ID should throw exception
+        IllegalArgumentException actualException = assertThrows(
             IllegalArgumentException.class, 
-            () -> customerService.getCustomerByID("TOOLONG123")
+            () -> customerService.getCustomerByID(invalidCustomerId)
         );
         
-        assertEquals("Can't have ID longer than 5 characters", exception.getMessage());
+        // Verify exception message is correct
+        assertEquals("Can't have ID longer than 5 characters", actualException.getMessage());
 
-        //Prove that the repository method was never called because the validation caught the error first.
+        // Verify repository was never called because validation fails first
         verify(customerRepository, never()).findById(anyString());
     }
 
     @Test
+    @DisplayName("Save customer returns saved customer when repository save succeeds")
     void testSaveCustomer() {
-        // Arrange
-        when(customerRepository.save(testCustomer)).thenReturn(testCustomer);
+        // Given: repository will save and return the customer
+        Customer customerToSave = testCustomer;
+        Customer expectedSavedCustomer = testCustomer;
+        when(customerRepository.save(customerToSave)).thenReturn(expectedSavedCustomer);
 
-        // Act
-        Customer result = customerService.saveCustomer(testCustomer);
+        // When: saving a customer through service
+        Customer actualSavedCustomer = customerService.saveCustomer(customerToSave);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("TEST1", result.getCustomerID());
-        verify(customerRepository).save(testCustomer);
+        // Then: should return the saved customer
+        assertNotNull(actualSavedCustomer);
+        assertEquals(expectedSavedCustomer.getCustomerID(), actualSavedCustomer.getCustomerID());
+        
+        // Verify repository save was called with correct customer
+        verify(customerRepository).save(customerToSave);
     }
 
     @Test
+    @DisplayName("Update customer returns updated customer when customer exists in repository")
     void testUpdateCustomer_Success() {
-        // Arrange
-        when(customerRepository.existsById("TEST1")).thenReturn(true);
-        when(customerRepository.save(testCustomer)).thenReturn(testCustomer);
+        // Given: customer exists in repository and can be updated
+        Customer customerToUpdate = testCustomer;
+        String customerId = customerToUpdate.getCustomerID();
+        Customer expectedUpdatedCustomer = testCustomer;
+        
+        when(customerRepository.existsById(customerId)).thenReturn(true);
+        when(customerRepository.save(customerToUpdate)).thenReturn(expectedUpdatedCustomer);
 
-        // Act
-        Customer result = customerService.updateCustomer(testCustomer);
+        // When: updating an existing customer
+        Customer actualUpdatedCustomer = customerService.updateCustomer(customerToUpdate);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("TEST1", result.getCustomerID());
-        verify(customerRepository).existsById("TEST1");
-        verify(customerRepository).save(testCustomer);
+        // Then: should return the updated customer
+        assertNotNull(actualUpdatedCustomer);
+        assertEquals(expectedUpdatedCustomer.getCustomerID(), actualUpdatedCustomer.getCustomerID());
+        
+        // Verify repository operations were called in correct order
+        verify(customerRepository).existsById(customerId);
+        verify(customerRepository).save(customerToUpdate);
     }
 
     @Test
+    @DisplayName("Update customer throws exception when customer does not exist in repository")
     void testUpdateCustomer_NotFound() {
-        // Arrange
-        // Ensure the test customer has the missing ID
-        testCustomer.setCustomerID("DUMMY");
-        when(customerRepository.existsById("DUMMY")).thenReturn(false);
+        // Given: customer with non-existent ID
+        String nonExistentCustomerId = "DUMMY";
+        testCustomer.setCustomerID(nonExistentCustomerId);
+        Customer customerToUpdate = testCustomer;
+        
+        when(customerRepository.existsById(nonExistentCustomerId)).thenReturn(false);
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
+        // When & Then: updating non-existent customer should throw exception
+        IllegalArgumentException actualException = assertThrows(
             IllegalArgumentException.class,
-            () -> customerService.updateCustomer(testCustomer)
+            () -> customerService.updateCustomer(customerToUpdate)
         );
 
-        assertEquals("Customer with ID DUMMY does not exist.", exception.getMessage());
-        verify(customerRepository).existsById("DUMMY");
+        // Verify exception message is correct
+        assertEquals("Customer with ID DUMMY does not exist.", actualException.getMessage());
+        
+        // Verify repository operations
+        verify(customerRepository).existsById(nonExistentCustomerId);
         verify(customerRepository, never()).save(any(Customer.class));
     }
 
     @Test
+    @DisplayName("Delete customer by ID returns true when customer exists and is deleted successfully")
     void testDeleteCustomerById_Success() {
-        // Arrange
-        when(customerRepository.existsById("TEST1")).thenReturn(true);
+        // Given: customer exists in repository
+        String customerId = "TEST1";
+        when(customerRepository.existsById(customerId)).thenReturn(true);
 
-        // Act
-        boolean result = customerService.deleteCustomerById("TEST1");
+        // When: deleting existing customer by ID
+        boolean deletionResult = customerService.deleteCustomerById(customerId);
 
-        // Assert
-        assertTrue(result);
-        verify(customerRepository).existsById("TEST1");
-        verify(customerRepository).deleteById("TEST1");
+        // Then: should return true indicating successful deletion
+        assertTrue(deletionResult);
+        
+        // Verify repository operations were called in correct order
+        verify(customerRepository).existsById(customerId);
+        verify(customerRepository).deleteById(customerId);
     }
 
     @Test
+    @DisplayName("Delete customer by ID returns false when customer does not exist in repository")
     void testDeleteCustomerById_NotFound() {
-        // Arrange
-        when(customerRepository.existsById("DUMMY")).thenReturn(false);
+        // Given: customer does not exist in repository
+        String nonExistentCustomerId = "DUMMY";
+        when(customerRepository.existsById(nonExistentCustomerId)).thenReturn(false);
 
-        // Act
-        boolean result = customerService.deleteCustomerById("DUMMY");
+        // When: attempting to delete non-existent customer
+        boolean deletionResult = customerService.deleteCustomerById(nonExistentCustomerId);
 
-        // Assert
-        assertFalse(result);
-        verify(customerRepository).existsById("DUMMY");
+        // Then: should return false indicating no deletion occurred
+        assertFalse(deletionResult);
+        
+        // Verify repository operations
+        verify(customerRepository).existsById(nonExistentCustomerId);
         verify(customerRepository, never()).deleteById(anyString());
     }
     
