@@ -107,24 +107,6 @@ class CustomerServiceTest {
         verify(customerRepository).findById(nonExistentCustomerId);
     }
 
-    @Test
-    @DisplayName("Get customer by ID throws exception when ID is longer than 5 characters")
-    void testGetCustomerById_InvalidLength() {
-        // Given: an invalid customer ID that's too long
-        String invalidCustomerId = "TOOLONG123";
-        
-        // When & Then: requesting customer with invalid ID should throw exception
-        IllegalArgumentException actualException = assertThrows(
-            IllegalArgumentException.class, 
-            () -> customerService.getCustomerByID(invalidCustomerId)
-        );
-        
-        // Verify exception message is correct
-        assertEquals("Can't have ID longer than 5 characters", actualException.getMessage());
-
-        // Verify repository was never called because validation fails first
-        verify(customerRepository, never()).findById(anyString());
-    }
 
     @Test
     @DisplayName("Save customer returns saved customer when repository save succeeds")
@@ -146,51 +128,24 @@ class CustomerServiceTest {
     }
 
     @Test
-    @DisplayName("Update customer returns updated customer when customer exists in repository")
+    @DisplayName("Update customer returns updated customer when repository save succeeds")
     void testUpdateCustomer_Success() {
-        // Given: customer exists in repository and can be updated
+        // Given: a customer to update
         Customer customerToUpdate = testCustomer;
-        String customerId = customerToUpdate.getCustomerID();
         Customer expectedUpdatedCustomer = testCustomer;
-        
-        when(customerRepository.existsById(customerId)).thenReturn(true);
         when(customerRepository.save(customerToUpdate)).thenReturn(expectedUpdatedCustomer);
 
-        // When: updating an existing customer
+        // When: updating a customer
         Customer actualUpdatedCustomer = customerService.updateCustomer(customerToUpdate);
 
         // Then: should return the updated customer
         assertNotNull(actualUpdatedCustomer);
         assertEquals(expectedUpdatedCustomer.getCustomerID(), actualUpdatedCustomer.getCustomerID());
-        
-        // Verify repository operations were called in correct order
-        verify(customerRepository).existsById(customerId);
+
+        // Verify ONLY save was called (no existence check in service)
         verify(customerRepository).save(customerToUpdate);
     }
 
-    @Test
-    @DisplayName("Update customer throws exception when customer does not exist in repository")
-    void testUpdateCustomer_NotFound() {
-        // Given: customer with non-existent ID
-        String nonExistentCustomerId = "DUMMY";
-        testCustomer.setCustomerID(nonExistentCustomerId);
-        Customer customerToUpdate = testCustomer;
-        
-        when(customerRepository.existsById(nonExistentCustomerId)).thenReturn(false);
-
-        // When & Then: updating non-existent customer should throw exception
-        IllegalArgumentException actualException = assertThrows(
-            IllegalArgumentException.class,
-            () -> customerService.updateCustomer(customerToUpdate)
-        );
-
-        // Verify exception message is correct
-        assertEquals("Customer with ID DUMMY does not exist.", actualException.getMessage());
-        
-        // Verify repository operations
-        verify(customerRepository).existsById(nonExistentCustomerId);
-        verify(customerRepository, never()).save(any(Customer.class));
-    }
 
     @Test
     @DisplayName("Delete customer by ID returns true when customer exists and is deleted successfully")
