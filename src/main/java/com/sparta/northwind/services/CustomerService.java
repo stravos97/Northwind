@@ -36,5 +36,32 @@ public class CustomerService {
     {
         return customerRepository.save(customer);
     }
+
+    public void deleteCustomer(Customer customer)
+    {
+        customerRepository.delete(customer);
+    }
+
+    public void deleteCustomerById(String id){
+        if(customerRepository.existsById(id)){
+            customerRepository.deleteById(id);
+        }else {
+            throw new IllegalArgumentException("Can't delete Customer with ID " + id);
+        }
+    }
+
+//    public Customer updateCustomer(Customer customer)
+//    {
+//        return customerRepository.save(customer);
+//    }
+
+    public Customer updateCustomerById(String id, Customer updatedCustomer){
+        if(customerRepository.existsById(id)){
+            updatedCustomer.setCustomerID(id); // Ensure the ID matches
+            return customerRepository.save(updatedCustomer);
+        }else {
+            throw new IllegalArgumentException("Can't update Customer with ID " + id);
+        }
+    }
 }
 
