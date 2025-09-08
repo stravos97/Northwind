@@ -41,5 +41,13 @@ public class CustomerController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @Operation(summary = "Add a new customer", description = "Create a new customer in the database")
+    @PostMapping
+    public ResponseEntity<Customer> addCustomer(@RequestBody Customer customer){
+        Customer savedCustomer = service.saveCustomer(customer);
+        return ResponseEntity.status(201).body(savedCustomer);
+    }
+
 }
 
