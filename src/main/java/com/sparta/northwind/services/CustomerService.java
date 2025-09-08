@@ -2,7 +2,6 @@ package com.sparta.northwind.services;
 
 import com.sparta.northwind.entities.Customer;
 import com.sparta.northwind.repository.CustomerRepository;
-import jakarta.persistence.EntityExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,19 +22,10 @@ public class CustomerService {
     }
 
     public Customer getCustomerByID(String id){
-        if(id.length()>5){
-            throw  new IllegalArgumentException("Can't have ID longer than 5 characters");
-        } else {
-            return customerRepository.findById(id).orElse(null);
-        }
+        return customerRepository.findById(id).orElse(null);
     }
 
     public Customer saveCustomer(Customer customer){
-
-        if(customer.getCustomerID().length()>5){
-            throw  new IllegalArgumentException("Can't have ID longer than 5 characters");
-        }
-
         if (customerRepository.existsById(customer.getCustomerID()))
         {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Customer already exists");
@@ -55,11 +45,7 @@ public class CustomerService {
     }
 
     public Customer updateCustomer(Customer customer) {
-        if (customerRepository.existsById(customer.getCustomerID())) {
-            return customerRepository.save(customer);
-        } else {
-            throw new IllegalArgumentException("Customer with ID " + customer.getCustomerID() + " does not exist.");
-        }
+        // Existence is validated in the controller before calling this method
+        return customerRepository.save(customer);
     }
 }
-
