@@ -28,10 +28,10 @@ public class NorthwindApplication {
         CustomerService customerService = context.getBean(CustomerService.class);
 
         System.out.println("=== Testing GET Methods ===");
-        Customer customerToFind = customerService.getCustomerById("ALFKI");
+        Customer customerToFind = customerService.getCustomerByID("ALFKI");
         System.out.println("Single customer: " + customerToFind);
 
-        List<Customer> allCustomers = customerService.getAllCustomers();
+        List<Customer> allCustomers = customerService.getAllCustomer();
         System.out.println("Total customers found: " + allCustomers.size());
         
         System.out.println("\n=== Testing UPDATE Method (Safe) ===");
@@ -47,7 +47,7 @@ public class NorthwindApplication {
         testCustomer.setCompanyName("Test Company");
         
         try {
-            customerService.updateCustomerById("TEST1", testCustomer);
+            customerService.updateCustomer(testCustomer);
             System.out.println("Update successful");
         } catch (IllegalArgumentException e) {
             System.out.println("Expected error for non-existent customer: " + e.getMessage());
@@ -57,11 +57,11 @@ public class NorthwindApplication {
         // Test delete validation without actually deleting
         System.out.println("Testing delete validation logic:");
         
-        try {
-            customerService.deleteCustomerById("NONEXISTENT");
+        boolean deleted = customerService.deleteCustomerById("NONEXISTENT");
+        if (deleted) {
             System.out.println("Delete successful");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Expected error for non-existent customer: " + e.getMessage());
+        } else {
+            System.out.println("Expected not found for non-existent customer");
         }
 
         // Show what would happen to real customer without actually deleting

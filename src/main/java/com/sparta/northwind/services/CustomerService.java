@@ -11,56 +11,39 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    public CustomerService(CustomerRepository customerRepository)
-    {
+    public CustomerService(CustomerRepository customerRepository){
         this.customerRepository = customerRepository;
     }
 
-    public List<Customer> getAllCustomers()
-    {
+    public List<Customer> getAllCustomer(){
         return customerRepository.findAll();
     }
 
-    public Customer getCustomerById(String id)
-    {
-        if (id.length() > 5)
-        {
-            throw new IllegalArgumentException("Can't have ID longer than 5 characters");
-        } else
-        {
+    public Customer getCustomerByID(String id){
+        if(id.length()>5){
+            throw  new IllegalArgumentException("Can't have ID longer than 5 characters");
+        } else {
             return customerRepository.findById(id).orElse(null);
         }
     }
 
-    public Customer saveCustomer(Customer customer)
-    {
+    public Customer saveCustomer(Customer customer){
         return customerRepository.save(customer);
     }
 
-    public void deleteCustomer(Customer customer)
-    {
-        customerRepository.delete(customer);
-    }
-
-    public void deleteCustomerById(String id){
-        if(customerRepository.existsById(id)){
+    public boolean deleteCustomerById(String id) {
+        if (customerRepository.existsById(id)) {
             customerRepository.deleteById(id);
-        }else {
-            throw new IllegalArgumentException("Can't delete Customer with ID " + id);
+            return true;
         }
+        return false;
     }
 
-//    public Customer updateCustomer(Customer customer)
-//    {
-//        return customerRepository.save(customer);
-//    }
-
-    public Customer updateCustomerById(String id, Customer updatedCustomer){
-        if(customerRepository.existsById(id)){
-            updatedCustomer.setCustomerID(id); // Ensure the ID matches
-            return customerRepository.save(updatedCustomer);
-        }else {
-            throw new IllegalArgumentException("Can't update Customer with ID " + id);
+    public Customer updateCustomer(Customer customer) {
+        if (customerRepository.existsById(customer.getCustomerID())) {
+            return customerRepository.save(customer);
+        } else {
+            throw new IllegalArgumentException("Customer with ID " + customer.getCustomerID() + " does not exist.");
         }
     }
 }

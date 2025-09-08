@@ -40,7 +40,9 @@ class CustomerServiceTest {
         customer2.setCustomerID("TEST2");
         customer2.setCompanyName("Mock Corporation");
         customer2.setContactName("Mock Person");
-        
+
+        // Without this line, you'd only have individual customer objects, but getAllCustomers() returns a List<Customer>,
+        // so the mock needs to return a list.
         testCustomers = Arrays.asList(testCustomer, customer2);
     }
 
@@ -50,7 +52,7 @@ class CustomerServiceTest {
         when(customerRepository.findAll()).thenReturn(testCustomers);
 
         // Act
-        List<Customer> result = customerService.getAllCustomers();
+        List<Customer> result = customerService.getAllCustomer();
 
         // Assert
         assertEquals(2, result.size());
@@ -65,7 +67,7 @@ class CustomerServiceTest {
         when(customerRepository.findById("TEST1")).thenReturn(Optional.of(testCustomer));
 
         // Act
-        Customer result = customerService.getCustomerById("TEST1");
+        Customer result = customerService.getCustomerByID("TEST1");
 
         // Assert
         assertNotNull(result);
@@ -80,7 +82,7 @@ class CustomerServiceTest {
         when(customerRepository.findById("DUMMY")).thenReturn(Optional.empty());
 
         // Act
-        Customer result = customerService.getCustomerById("DUMMY");
+        Customer result = customerService.getCustomerByID("DUMMY");
 
         // Assert
         assertNull(result);
@@ -92,10 +94,12 @@ class CustomerServiceTest {
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class, 
-            () -> customerService.getCustomerById("TOOLONG123")
+            () -> customerService.getCustomerByID("TOOLONG123")
         );
         
         assertEquals("Can't have ID longer than 5 characters", exception.getMessage());
+
+        //Prove that the repository method was never called because the validation caught the error first.
         verify(customerRepository, never()).findById(anyString());
     }
 
@@ -114,13 +118,13 @@ class CustomerServiceTest {
     }
 
     @Test
-    void testUpdateCustomerById_Success() {
+    void testUpdateCustomer_Success() {
         // Arrange
         when(customerRepository.existsById("TEST1")).thenReturn(true);
         when(customerRepository.save(testCustomer)).thenReturn(testCustomer);
 
         // Act
-        Customer result = customerService.updateCustomerById("TEST1", testCustomer);
+        Customer result = customerService.updateCustomer(testCustomer);
 
         // Assert
         assertNotNull(result);
@@ -130,17 +134,19 @@ class CustomerServiceTest {
     }
 
     @Test
-    void testUpdateCustomerById_NotFound() {
+    void testUpdateCustomer_NotFound() {
         // Arrange
+        // Ensure the test customer has the missing ID
+        testCustomer.setCustomerID("DUMMY");
         when(customerRepository.existsById("DUMMY")).thenReturn(false);
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> customerService.updateCustomerById("DUMMY", testCustomer)
+            () -> customerService.updateCustomer(testCustomer)
         );
 
-        assertEquals("Can't update Customer with ID DUMMY", exception.getMessage());
+        assertEquals("Customer with ID DUMMY does not exist.", exception.getMessage());
         verify(customerRepository).existsById("DUMMY");
         verify(customerRepository, never()).save(any(Customer.class));
     }
@@ -151,9 +157,10 @@ class CustomerServiceTest {
         when(customerRepository.existsById("TEST1")).thenReturn(true);
 
         // Act
-        assertDoesNotThrow(() -> customerService.deleteCustomerById("TEST1"));
+        boolean result = customerService.deleteCustomerById("TEST1");
 
         // Assert
+        assertTrue(result);
         verify(customerRepository).existsById("TEST1");
         verify(customerRepository).deleteById("TEST1");
     }
@@ -163,23 +170,13 @@ class CustomerServiceTest {
         // Arrange
         when(customerRepository.existsById("DUMMY")).thenReturn(false);
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> customerService.deleteCustomerById("DUMMY")
-        );
+        // Act
+        boolean result = customerService.deleteCustomerById("DUMMY");
 
-        assertEquals("Can't delete Customer with ID DUMMY", exception.getMessage());
+        // Assert
+        assertFalse(result);
         verify(customerRepository).existsById("DUMMY");
         verify(customerRepository, never()).deleteById(anyString());
     }
-
-    @Test
-    void testDeleteCustomer() {
-        // Act
-        customerService.deleteCustomer(testCustomer);
-
-        // Assert
-        verify(customerRepository).delete(testCustomer);
-    }
+    
 }
