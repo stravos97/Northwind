@@ -75,17 +75,6 @@ public class CustomerController {
          */
 
 
-//        Customer existingCustomer = service.getCustomerByID(id);
-//
-//        if (existingCustomer != null) {
-//            postRequestCustomer.setCustomerID(id); // Ensure ID matches path
-//            Customer updatedCustomer = service.updateCustomer(postRequestCustomer);
-//            return ResponseEntity.ok(updatedCustomer);
-//
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-
         postRequestCustomer.setCustomerID(id);
         Customer updatedCustomer = service.updateCustomer(postRequestCustomer);
 

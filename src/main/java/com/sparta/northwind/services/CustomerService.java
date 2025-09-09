@@ -13,9 +13,13 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository){
+        if (customerRepository == null) {
+            throw new IllegalArgumentException("Repository cannot be null");
+        }
         this.customerRepository = customerRepository;
     }
+
 
     public List<Customer> getAllCustomer() {
         return customerRepository.findAll();

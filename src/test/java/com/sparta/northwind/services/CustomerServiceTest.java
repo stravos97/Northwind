@@ -94,7 +94,7 @@ class CustomerServiceTest {
     @DisplayName("Get customer by ID returns null when ID does not exist in repository")
     void testGetCustomerById_NotFound() {
         // Given: repository will return empty for non-existent ID
-        String nonExistentCustomerId = "DUMMY";
+        String nonExistentCustomerId = anyString();
         when(customerRepository.findById(nonExistentCustomerId)).thenReturn(Optional.empty());
 
         // When: requesting customer by non-existent ID
@@ -169,7 +169,7 @@ class CustomerServiceTest {
     @DisplayName("Delete customer by ID returns false when customer does not exist in repository")
     void testDeleteCustomerById_NotFound() {
         // Given: customer does not exist in repository
-        String nonExistentCustomerId = "DUMMY";
+        String nonExistentCustomerId = anyString();
         when(customerRepository.existsById(nonExistentCustomerId)).thenReturn(false);
 
         // When: attempting to delete non-existent customer
