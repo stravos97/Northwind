@@ -39,13 +39,11 @@ public class CustomerController {
             description = "Retrieve a a customer from the database using their unique ID")
 
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getCustomerById(@Size(max = 5) @PathVariable String id) {
+    public ResponseEntity<Customer> getCustomerById(@Size(min = 1, max = 5) @PathVariable String id) {
+
         Customer customer = service.getCustomerByID(id);
-        if (customer != null) {
-            return ResponseEntity.ok(customer);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return customer != null ? ResponseEntity.ok(customer) : ResponseEntity.notFound().build();
+
     }
 
     @Operation(summary = "Add a new customer",
@@ -59,7 +57,7 @@ public class CustomerController {
     @Operation(summary = "Update a customer",
             description = "Update an existing customer record in the database using their unique ID")
     @PutMapping("/{id}")
-    public ResponseEntity<Customer> updateCustomerById(@Valid @RequestBody Customer postRequestCustomer, @Size(max = 5) @PathVariable String id) {
+    public ResponseEntity<Customer> updateCustomerById(@Valid @RequestBody Customer postRequestCustomer, @Size(min = 1, max = 5) @PathVariable String id) {
 
 
         /**
@@ -77,23 +75,36 @@ public class CustomerController {
          */
 
 
-        Customer existingCustomer = service.getCustomerByID(id);
+//        Customer existingCustomer = service.getCustomerByID(id);
+//
+//        if (existingCustomer != null) {
+//            postRequestCustomer.setCustomerID(id); // Ensure ID matches path
+//            Customer updatedCustomer = service.updateCustomer(postRequestCustomer);
+//            return ResponseEntity.ok(updatedCustomer);
+//
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
 
-        if (existingCustomer != null) {
-            postRequestCustomer.setCustomerID(id); // Ensure ID matches path
-            Customer updatedCustomer = service.updateCustomer(postRequestCustomer);
+        postRequestCustomer.setCustomerID(id);
+        Customer updatedCustomer = service.updateCustomer(postRequestCustomer);
+
+        if (updatedCustomer != null)
+        {
             return ResponseEntity.ok(updatedCustomer);
-
-        } else {
+        }
+        else
+        {
             return ResponseEntity.notFound().build();
         }
+
 
     }
 
     @Operation(summary = "Delete a customer",
             description = "Delete a customer in the database")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCustomer(@Size(max = 5) @PathVariable String id) {
+    public ResponseEntity<Void> deleteCustomer(@Size(min = 1, max = 5) @PathVariable String id) {
         if (service.deleteCustomerById(id)) {
             return ResponseEntity.noContent().build();
         } else {
