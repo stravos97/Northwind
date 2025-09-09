@@ -38,18 +38,19 @@ public class CustomerService {
         return customerDtos;
     }
 
-    public Customer getCustomerByID(String id) {
-        return customerRepository.findById(id).orElse(null);
+    public CustomerDto getCustomerByID(String id) {
+        Customer customer = customerRepository.findById(id).orElse(null);
+        return customer != null ? customerMapper.toDto(customer) : null;
     }
 
-    public Customer createCustomer(Customer customer) {
-        if (customerRepository.existsById(customer.getCustomerID())) {
+    public CustomerDto createCustomer(CustomerDto customerDto) {
+        if (customerRepository.existsById(customerDto.getCustomerID())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Customer already exists");
-
         }
 
-        return customerRepository.save(customer);
-
+        Customer customer = customerMapper.toEntity(customerDto);
+        Customer savedCustomer = customerRepository.save(customer);
+        return customerMapper.toDto(savedCustomer);
     }
 
     public boolean deleteCustomerById(String id) {
@@ -60,8 +61,10 @@ public class CustomerService {
         return false;
     }
 
-    public Customer updateCustomer(Customer customer) {
+    public CustomerDto updateCustomer(CustomerDto customerDto) {
         // Existence is validated in the controller before calling this method
-        return customerRepository.save(customer);
+        Customer customer = customerMapper.toEntity(customerDto);
+        Customer updatedCustomer = customerRepository.save(customer);
+        return customerMapper.toDto(updatedCustomer);
     }
 }

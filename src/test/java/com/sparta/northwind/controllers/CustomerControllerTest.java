@@ -95,10 +95,9 @@ class CustomerControllerTest {
     @Test
     @DisplayName("Get customer by ID returns OK when customer exists")
     void getCustomerById_success_returnsOk() throws Exception {
-        // Given: service will return a specific customer
+        // Given: service will return a specific customer DTO
         String customerId = "TEST1";
-        Customer expectedCustomer = testCustomer1;
-        when(customerService.getCustomerByID(customerId)).thenReturn(expectedCustomer);
+        when(customerService.getCustomerByID(customerId)).thenReturn(testCustomerDto1);
 
         // Prepare the GET request
         MockHttpServletRequestBuilder request = get("/customers/" + customerId);
@@ -166,17 +165,14 @@ class CustomerControllerTest {
     @DisplayName("Add customer returns created with body")
     void addCustomer_returnsCreatedWithBody(String customerID, String companyName) throws Exception {
 
-        // Given: a customer to save
-        Customer customer = new Customer();
-        customer.setCustomerID(customerID);
-        customer.setCompanyName(companyName);
+        // Given: a customer DTO to save
+        CustomerDto customerDto = new CustomerDto(customerID, companyName, null, null);
 
-        // When: service saves the customer, it returns the same customer
-        Customer expectedResult = customer;
-        when(customerService.createCustomer(any(Customer.class))).thenReturn(expectedResult);
+        // When: service saves the customer, it returns the same customer DTO
+        when(customerService.createCustomer(any(CustomerDto.class))).thenReturn(customerDto);
 
         // Prepare the POST request
-        String customerJson = objectMapper.writeValueAsString(customer);
+        String customerJson = objectMapper.writeValueAsString(customerDto);
         MockHttpServletRequestBuilder request = post("/customers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(customerJson);
@@ -193,6 +189,6 @@ class CustomerControllerTest {
         response.andExpect(jsonPath("$.companyName").value(is(companyName)));
 
         // Verify service was called
-        verify(customerService).createCustomer(any(Customer.class));
+        verify(customerService).createCustomer(any(CustomerDto.class));
     }
 }

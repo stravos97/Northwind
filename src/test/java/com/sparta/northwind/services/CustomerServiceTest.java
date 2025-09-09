@@ -89,37 +89,38 @@ class CustomerServiceTest {
     @Test
     @DisplayName("Get customer by ID returns customer when ID exists in repository")
     void testGetCustomerById_Success() {
-        // Given: repository will return a customer for valid ID
+        // Given: repository will return a customer entity for valid ID
         String customerId = "TEST1";
-        Customer expectedCustomer = testCustomer;
-        when(customerRepository.findById(customerId)).thenReturn(Optional.of(expectedCustomer));
+        when(customerRepository.findById(customerId)).thenReturn(Optional.of(testCustomer));
+        when(customerMapper.toDto(testCustomer)).thenReturn(testCustomerDto);
 
         // When: requesting customer by ID
-        Customer actualCustomer = customerService.getCustomerByID(customerId);
+        CustomerDto actualCustomer = customerService.getCustomerByID(customerId);
 
-        // Then: should return the expected customer
+        // Then: should return the expected customer DTO
         assertNotNull(actualCustomer);
-        assertEquals(expectedCustomer.getCustomerID(), actualCustomer.getCustomerID());
-        assertEquals(expectedCustomer.getCompanyName(), actualCustomer.getCompanyName());
+        assertEquals(testCustomerDto.getCustomerID(), actualCustomer.getCustomerID());
+        assertEquals(testCustomerDto.getCompanyName(), actualCustomer.getCompanyName());
         
-        // Verify repository was called with correct ID
+        // Verify repository and mapper were called
         verify(customerRepository).findById(customerId);
+        verify(customerMapper).toDto(testCustomer);
     }
 
     @Test
     @DisplayName("Get customer by ID returns null when ID does not exist in repository")
     void testGetCustomerById_NotFound() {
         // Given: repository will return empty for non-existent ID
-        String nonExistentCustomerId = anyString();
+        String nonExistentCustomerId = "DUMMY";
         when(customerRepository.findById(nonExistentCustomerId)).thenReturn(Optional.empty());
 
         // When: requesting customer by non-existent ID
-        Customer actualCustomer = customerService.getCustomerByID(nonExistentCustomerId);
+        CustomerDto actualCustomer = customerService.getCustomerByID(nonExistentCustomerId);
 
         // Then: should return null
         assertNull(actualCustomer);
         
-        // Verify repository was called with correct ID
+        // Verify repository was called with correct ID (mapper should not be called)
         verify(customerRepository).findById(nonExistentCustomerId);
     }
 
@@ -127,39 +128,43 @@ class CustomerServiceTest {
     @Test
     @DisplayName("Save customer returns saved customer when repository save succeeds")
     void testCreateCustomer() {
-        // Given: repository will save and return the customer
-        Customer customerToSave = testCustomer;
-        Customer expectedSavedCustomer = testCustomer;
-        when(customerRepository.save(customerToSave)).thenReturn(expectedSavedCustomer);
+        // Given: mapper and repository will handle conversion and save
+        when(customerMapper.toEntity(testCustomerDto)).thenReturn(testCustomer);
+        when(customerRepository.save(testCustomer)).thenReturn(testCustomer);
+        when(customerMapper.toDto(testCustomer)).thenReturn(testCustomerDto);
 
         // When: saving a customer through service
-        Customer actualSavedCustomer = customerService.createCustomer(customerToSave);
+        CustomerDto actualSavedCustomer = customerService.createCustomer(testCustomerDto);
 
-        // Then: should return the saved customer
+        // Then: should return the saved customer DTO
         assertNotNull(actualSavedCustomer);
-        assertEquals(expectedSavedCustomer.getCustomerID(), actualSavedCustomer.getCustomerID());
+        assertEquals(testCustomerDto.getCustomerID(), actualSavedCustomer.getCustomerID());
         
-        // Verify repository save was called with correct customer
-        verify(customerRepository).save(customerToSave);
+        // Verify mapper and repository were called correctly
+        verify(customerMapper).toEntity(testCustomerDto);
+        verify(customerRepository).save(testCustomer);
+        verify(customerMapper).toDto(testCustomer);
     }
 
     @Test
     @DisplayName("Update customer returns updated customer when repository save succeeds")
     void testUpdateCustomer_Success() {
-        // Given: a customer to update
-        Customer customerToUpdate = testCustomer;
-        Customer expectedUpdatedCustomer = testCustomer;
-        when(customerRepository.save(customerToUpdate)).thenReturn(expectedUpdatedCustomer);
+        // Given: mapper and repository will handle conversion and update
+        when(customerMapper.toEntity(testCustomerDto)).thenReturn(testCustomer);
+        when(customerRepository.save(testCustomer)).thenReturn(testCustomer);
+        when(customerMapper.toDto(testCustomer)).thenReturn(testCustomerDto);
 
         // When: updating a customer
-        Customer actualUpdatedCustomer = customerService.updateCustomer(customerToUpdate);
+        CustomerDto actualUpdatedCustomer = customerService.updateCustomer(testCustomerDto);
 
-        // Then: should return the updated customer
+        // Then: should return the updated customer DTO
         assertNotNull(actualUpdatedCustomer);
-        assertEquals(expectedUpdatedCustomer.getCustomerID(), actualUpdatedCustomer.getCustomerID());
+        assertEquals(testCustomerDto.getCustomerID(), actualUpdatedCustomer.getCustomerID());
 
-        // Verify ONLY save was called (no existence check in service)
-        verify(customerRepository).save(customerToUpdate);
+        // Verify mapper and repository were called correctly
+        verify(customerMapper).toEntity(testCustomerDto);
+        verify(customerRepository).save(testCustomer);
+        verify(customerMapper).toDto(testCustomer);
     }
 
 

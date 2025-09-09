@@ -1,7 +1,6 @@
 package com.sparta.northwind;
 
 import com.sparta.northwind.dtos.CustomerDto;
-import com.sparta.northwind.entities.Customer;
 import com.sparta.northwind.services.CustomerService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,7 +27,7 @@ public class NorthwindApplication {
         CustomerService customerService = context.getBean(CustomerService.class);
 
         System.out.println("=== Testing GET Methods ===");
-        Customer customerToFind = customerService.getCustomerByID("ALFKI");
+        CustomerDto customerToFind = customerService.getCustomerByID("ALFKI");
         System.out.println("Single customer: " + customerToFind);
 
         List<CustomerDto> allCustomers = customerService.getAllCustomer();
@@ -42,12 +41,10 @@ public class NorthwindApplication {
         }
         
         // Test with non-existent customer (safe)
-        Customer testCustomer = new Customer();
-        testCustomer.setCustomerID("TEST1");
-        testCustomer.setCompanyName("Test Company");
+        CustomerDto testCustomerDto = new CustomerDto("TEST1", "Test Company", "Test Contact", "Test City");
         
         try {
-            customerService.updateCustomer(testCustomer);
+            customerService.updateCustomer(testCustomerDto);
             System.out.println("Update successful");
         } catch (IllegalArgumentException e) {
             System.out.println("Expected error for non-existent customer: " + e.getMessage());

@@ -37,58 +37,43 @@ public class CustomerController {
     }
 
     @Operation(summary = "Get customer by ID",
-            description = "Retrieve a a customer from the database using their unique ID")
-
+            description = "Retrieve a customer from the database using their unique ID")
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getCustomerById(@Size(min = 1, max = 5) @PathVariable String id) {
-
-        Customer customer = service.getCustomerByID(id);
+    public ResponseEntity<CustomerDto> getCustomerById(@Size(min = 1, max = 5) @PathVariable String id) {
+        CustomerDto customer = service.getCustomerByID(id);
         return customer != null ? ResponseEntity.ok(customer) : ResponseEntity.notFound().build();
-
     }
 
     @Operation(summary = "Add a new customer",
             description = "Create a new customer in the database")
     @PostMapping
-    public ResponseEntity<Customer> addCustomer(@Valid @RequestBody Customer customer) {
-        Customer savedCustomer = service.createCustomer(customer);
+    public ResponseEntity<CustomerDto> addCustomer(@Valid @RequestBody CustomerDto customer) {
+        CustomerDto savedCustomer = service.createCustomer(customer);
         return ResponseEntity.status(201).body(savedCustomer);
     }
 
     @Operation(summary = "Update a customer",
             description = "Update an existing customer record in the database using their unique ID")
     @PutMapping("/{id}")
-    public ResponseEntity<Customer> updateCustomerById(@Valid @RequestBody Customer postRequestCustomer, @Size(min = 1, max = 5) @PathVariable String id) {
-
+    public ResponseEntity<CustomerDto> updateCustomerById(@Valid @RequestBody CustomerDto customerDto, @Size(min = 1, max = 5) @PathVariable String id) {
 
         /**
-         *   Without postRequestCustomer.setCustomerID(id):
-         *   - The system might try to update customer "HIJKL" instead of "ALFKI"
-         *   - Or create a new customer with ID "HIJKL"
-         *   - This breaks RESTful conventions and creates security vulnerabilities
-         *
-         *   With postRequestCustomer.setCustomerID(id):
-         *   - Forces the customer object to use the ID from the URL path
-         *   - Ensures you're always updating the customer specified in the URL
-         *   - Prevents ID mismatch attacks
-         *
-         *   In REST APIs, PUT /resource/{id} should always update the resource with that specific {id}, regardless of what's in the request body. The URL path is the "source of truth" for which resource to modify.
+         *   Since CustomerDto is immutable (final fields), we cannot call setCustomerID(id).
+         *   Instead, we create a new CustomerDto with the ID from the path parameter.
+         *   This ensures the URL path is the "source of truth" for which resource to modify.
+         *   
+         *   In REST APIs, PUT /resource/{id} should always update the resource with that specific {id}, 
+         *   regardless of what's in the request body. This prevents ID mismatch attacks.
          */
+        CustomerDto customerWithPathId = new CustomerDto(
+            id, // Use path parameter ID as source of truth
+            customerDto.getCompanyName(),
+            customerDto.getContactName(),
+            customerDto.getCity()
+        );
 
-
-        postRequestCustomer.setCustomerID(id);
-        Customer updatedCustomer = service.updateCustomer(postRequestCustomer);
-
-        if (updatedCustomer != null)
-        {
-            return ResponseEntity.ok(updatedCustomer);
-        }
-        else
-        {
-            return ResponseEntity.notFound().build();
-        }
-
-
+        CustomerDto updatedCustomer = service.updateCustomer(customerWithPathId);
+        return updatedCustomer != null ? ResponseEntity.ok(updatedCustomer) : ResponseEntity.notFound().build();
     }
 
     @Operation(summary = "Delete a customer",
