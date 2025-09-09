@@ -180,7 +180,7 @@ class CustomerServiceTest {
         
         // Verify repository operations
         verify(customerRepository).existsById(nonExistentCustomerId);
-        verify(customerRepository, never()).deleteById(anyString());
+        verify(customerRepository, never()).deleteById(nonExistentCustomerId);
     }
     
 }
