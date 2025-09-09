@@ -1,5 +1,7 @@
 package com.sparta.northwind.services;
 
+import com.sparta.northwind.dtos.CustomerDto;
+import com.sparta.northwind.dtos.CustomerMapper;
 import com.sparta.northwind.entities.Customer;
 import com.sparta.northwind.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,11 +29,16 @@ class CustomerServiceTest {
     @Mock
     private CustomerRepository customerRepository;
 
+    @Mock
+    private CustomerMapper customerMapper;
+
     @InjectMocks
     private CustomerService customerService;
 
     private Customer testCustomer;
     private List<Customer> testCustomers;
+    private CustomerDto testCustomerDto;
+    private List<CustomerDto> testCustomerDtos;
 
     @BeforeEach
     void setUp() {
@@ -46,28 +53,37 @@ class CustomerServiceTest {
         customer2.setCompanyName("Mock Corporation");
         customer2.setContactName("Mock Person");
 
-        // Without this line, you'd only have individual customer objects, but getAllCustomers() returns a List<Customer>,
-        // so the mock needs to return a list.
         testCustomers = Arrays.asList(testCustomer, customer2);
+
+        // Create corresponding DTOs for expected results
+        testCustomerDto = new CustomerDto("TEST1", "Test Company Ltd", "Test User", null);
+        CustomerDto customerDto2 = new CustomerDto("TEST2", "Mock Corporation", "Mock Person", null);
+        testCustomerDtos = Arrays.asList(testCustomerDto, customerDto2);
     }
 
     @Test
     @DisplayName("Get all customers returns list of all customers from repository")
     void testGetAllCustomers() {
-        // Given: repository contains a list of customers
-        List<Customer> expectedCustomers = testCustomers;
-        when(customerRepository.findAll()).thenReturn(expectedCustomers);
+        // Given: repository contains a list of customer entities
+        when(customerRepository.findAll()).thenReturn(testCustomers);
+        // Mock the mapper to convert entities to DTOs
+        when(customerMapper.toDto(testCustomer)).thenReturn(testCustomerDtos.get(0));
+        when(customerMapper.toDto(testCustomers.get(1))).thenReturn(testCustomerDtos.get(1));
 
         // When: requesting all customers from service
-        List<Customer> actualCustomers = customerService.getAllCustomer();
+        List<CustomerDto> actualCustomers = customerService.getAllCustomer();
 
-        // Then: should return all customers from repository
+        // Then: should return all customers as DTOs from service
         assertEquals(2, actualCustomers.size());
         assertEquals("TEST1", actualCustomers.get(0).getCustomerID());
         assertEquals("TEST2", actualCustomers.get(1).getCustomerID());
+        assertEquals("Test Company Ltd", actualCustomers.get(0).getCompanyName());
+        assertEquals("Mock Corporation", actualCustomers.get(1).getCompanyName());
         
-        // Verify repository was called
+        // Verify repository and mapper were called
         verify(customerRepository).findAll();
+        verify(customerMapper).toDto(testCustomer);
+        verify(customerMapper).toDto(testCustomers.get(1));
     }
 
     @Test

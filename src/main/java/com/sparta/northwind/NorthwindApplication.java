@@ -1,7 +1,7 @@
 package com.sparta.northwind;
 
+import com.sparta.northwind.dtos.CustomerDto;
 import com.sparta.northwind.entities.Customer;
-import com.sparta.northwind.repository.CustomerRepository;
 import com.sparta.northwind.services.CustomerService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,7 +31,7 @@ public class NorthwindApplication {
         Customer customerToFind = customerService.getCustomerByID("ALFKI");
         System.out.println("Single customer: " + customerToFind);
 
-        List<Customer> allCustomers = customerService.getAllCustomer();
+        List<CustomerDto> allCustomers = customerService.getAllCustomer();
         System.out.println("Total customers found: " + allCustomers.size());
         
         System.out.println("\n=== Testing UPDATE Method (Safe) ===");

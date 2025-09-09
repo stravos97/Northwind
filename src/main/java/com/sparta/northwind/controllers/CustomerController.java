@@ -1,5 +1,6 @@
 package com.sparta.northwind.controllers;
 
+import com.sparta.northwind.dtos.CustomerDto;
 import com.sparta.northwind.entities.Customer;
 import com.sparta.northwind.services.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,8 +31,8 @@ public class CustomerController {
     @Operation(summary = "Get all customers",
             description = "Retrieve a list of all customers")
     @GetMapping("/")
-    public ResponseEntity<List<Customer>> getAllCustomers() {
-        List<Customer> customers = service.getAllCustomer();
+    public ResponseEntity<List<CustomerDto>> getAllCustomers() {
+        List<CustomerDto> customers = service.getAllCustomer();
         return ResponseEntity.ok(customers);
     }
 

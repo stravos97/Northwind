@@ -1,6 +1,7 @@
 package com.sparta.northwind.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.northwind.dtos.CustomerDto;
 import com.sparta.northwind.entities.Customer;
 import com.sparta.northwind.services.CustomerService;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,9 @@ class CustomerControllerTest {
 
     private Customer testCustomer1;
     private Customer testCustomer2;
-    private List<Customer> customers;
+    private CustomerDto testCustomerDto1;
+    private CustomerDto testCustomerDto2;
+    private List<CustomerDto> customerDtos;
 
     @BeforeEach
     void setUp() {
@@ -58,15 +61,17 @@ class CustomerControllerTest {
         testCustomer2.setCompanyName("Mock Corporation");
         testCustomer2.setContactName("Mock Person");
 
-        customers = Arrays.asList(testCustomer1, testCustomer2);
+        // Create corresponding DTOs for controller responses
+        testCustomerDto1 = new CustomerDto("TEST1", "Test Company Ltd", "Test User", null);
+        testCustomerDto2 = new CustomerDto("TEST2", "Mock Corporation", "Mock Person", null);
+        customerDtos = Arrays.asList(testCustomerDto1, testCustomerDto2);
     }
 
     @Test
     @DisplayName("Get all customers returns OK with customer list")
     void getAllCustomers_returnsOkWithList() throws Exception {
-        // Given: service will return a list of customers
-        List<Customer> expectedCustomers = customers;
-        when(customerService.getAllCustomer()).thenReturn(expectedCustomers);
+        // Given: service will return a list of customer DTOs
+        when(customerService.getAllCustomer()).thenReturn(customerDtos);
 
         // Prepare the GET request
         MockHttpServletRequestBuilder request = get("/customers/");
