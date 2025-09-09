@@ -110,14 +110,14 @@ class CustomerServiceTest {
 
     @Test
     @DisplayName("Save customer returns saved customer when repository save succeeds")
-    void testSaveCustomer() {
+    void testCreateCustomer() {
         // Given: repository will save and return the customer
         Customer customerToSave = testCustomer;
         Customer expectedSavedCustomer = testCustomer;
         when(customerRepository.save(customerToSave)).thenReturn(expectedSavedCustomer);
 
         // When: saving a customer through service
-        Customer actualSavedCustomer = customerService.saveCustomer(customerToSave);
+        Customer actualSavedCustomer = customerService.createCustomer(customerToSave);
 
         // Then: should return the saved customer
         assertNotNull(actualSavedCustomer);

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -25,8 +24,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -171,7 +168,7 @@ class CustomerControllerTest {
 
         // When: service saves the customer, it returns the same customer
         Customer expectedResult = customer;
-        when(customerService.saveCustomer(any(Customer.class))).thenReturn(expectedResult);
+        when(customerService.createCustomer(any(Customer.class))).thenReturn(expectedResult);
 
         // Prepare the POST request
         String customerJson = objectMapper.writeValueAsString(customer);
@@ -191,6 +188,6 @@ class CustomerControllerTest {
         response.andExpect(jsonPath("$.companyName").value(is(companyName)));
 
         // Verify service was called
-        verify(customerService).saveCustomer(any(Customer.class));
+        verify(customerService).createCustomer(any(Customer.class));
     }
 }

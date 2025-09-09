@@ -25,7 +25,7 @@ public class CustomerService {
         return customerRepository.findById(id).orElse(null);
     }
 
-    public Customer saveCustomer(Customer customer) {
+    public Customer createCustomer(Customer customer) {
         if (customerRepository.existsById(customer.getCustomerID())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Customer already exists");
 

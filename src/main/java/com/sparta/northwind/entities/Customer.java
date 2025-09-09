@@ -1,6 +1,7 @@
 package com.sparta.northwind.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -13,6 +14,7 @@ import jakarta.validation.constraints.Size;
 })
 public class Customer {
     @Id
+    @NotBlank(message = "Customer ID cannot be null or empty")
     @Size(max = 5)
     @Column(name = "CustomerID", nullable = false, length = 5)
     private String customerID;

@@ -50,7 +50,7 @@ public class CustomerController {
             description = "Create a new customer in the database")
     @PostMapping
     public ResponseEntity<Customer> addCustomer(@Valid @RequestBody Customer customer) {
-        Customer savedCustomer = service.saveCustomer(customer);
+        Customer savedCustomer = service.createCustomer(customer);
         return ResponseEntity.status(201).body(savedCustomer);
     }
 
